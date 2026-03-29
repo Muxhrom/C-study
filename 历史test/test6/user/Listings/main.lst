@@ -1,0 +1,98 @@
+C51 COMPILER V9.54   MAIN                                                                  03/03/2026 19:38:33 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\01_Portable_Apps\Dev_Kit\keil\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\driver) 
+                    -DEBUG OBJECTEXTEND PRINT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          //头文件声明
+   2          #include <STC15F2K60S2.H>
+   3          #include "Key.h"
+   4          #include "Seg.h"
+   5          
+   6          
+   7          
+   8          //变量声明
+   9          unsigned char Key_Slow_Down;//按键减速10ms
+  10          unsigned int Seg_Slow_Down;//数码管减速变量
+  11          unsigned char Key_Val,Key_Down,Key_Old;
+  12          unsigned char Seg_Buf[6] = {1,2,3,4,5,6};//数码管显示数据存放数组
+  13          
+  14          // 按键处理
+  15          
+  16          
+  17          
+  18          //mian
+  19          void main(){
+  20   1        if (Key_Slow_Down) return;
+  21   1        Key_Slow_Down = 1;//按键减速
+  22   1        
+  23   1        Key_Val = Key_Read();
+  24   1        Key_Down = Key_Val&(Key_Val^Key_Old);
+  25   1        Key_Old = Key_Val;
+  26   1        
+  27   1        switch(Key_Down)
+  28   1        {
+  29   2        
+  30   2        }
+  31   1      }
+  32          
+  33          //信息处理函数
+  34          void Seg_Proc()
+  35          {
+  36   1        if (Seg_Slow_Down) return;
+  37   1        Key_Slow_Down = 1;//数码管减速
+  38   1      
+  39   1      }
+  40          
+  41          //其他显示函数
+  42          void Led_Proc()
+  43          {
+  44   1      
+  45   1      }
+  46          
+  47          //定时器0初始化函数
+  48          void Timer0_Init(void)    //100微秒@11.0592MHz
+  49          {
+  50   1        AUXR |= 0x80;     //定时器时钟1T模式
+  51   1        TMOD &= 0xF0;     //设置定时器模式
+  52   1        TL0 = 0xAE;       //设置定时初始值
+  53   1        TH0 = 0xFB;       //设置定时初始值
+  54   1        TF0 = 0;        //清除TF0标志
+C51 COMPILER V9.54   MAIN                                                                  03/03/2026 19:38:33 PAGE 2   
+
+  55   1        TR0 = 1;        //定时器0开始计时
+  56   1        ET0 = 1;        //自己加的两行，不知道意义
+  57   1        EA = 1;
+  58   1      }
+  59          
+  60          //定时器0中断服务函数
+  61          void Timer0Server() interrupt 1 
+  62          {
+  63   1        TL0 = 0xAE;       //设置定时初始值
+  64   1        TH0 = 0xFB;       //设置定时初始值
+  65   1        if(++Key_Slow_Down == 10) Key_Slow_Down = 0;
+  66   1        if(++Seg_Slow_Down == 500) Seg_Slow_Down = 0;
+  67   1        if(++Seg_Pos==6) Seg_Pos = 0;
+*** ERROR C202 IN LINE 67 OF main.c: 'Seg_Pos': undefined identifier
+*** ERROR C202 IN LINE 67 OF main.c: 'Seg_Pos': undefined identifier
+  68   1        Seg_Disp(Seg_Pos,Seg_Buf[Seg_Pos]);
+*** ERROR C202 IN LINE 68 OF main.c: 'Seg_Pos': undefined identifier
+  69   1      }
+  70          
+  71          //main
+  72          void main(){
+  73   1        Timer0Init();
+  74   1        while(1)
+  75   1        {
+  76   2          Ket_Proc();
+  77   2          Seg_Proc();
+  78   2          Led_Proc();
+  79   2        }
+  80   1      
+  81   1      }
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  3 ERROR(S)

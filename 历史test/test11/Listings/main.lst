@@ -1,0 +1,120 @@
+C51 COMPILER V9.54   MAIN                                                                  03/10/2026 19:15:09 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\01_Portable_Apps\Dev_Kit\keil\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND
+                    - PRINT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include <intrins.h>
+   3          
+   4          //段码
+   5          unsigned char code SMG_duanma[18]=
+   6              {0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,
+   7               0x80,0x90,0x88,0x80,0xc6,0xc0,0x86,0x8e,
+   8               0xbf,0x7f};
+   9          //定义
+  10          unsigned char yu;
+  11              
+  12          //延时函数
+  13          void Delay(unsigned int xms)  //@12.000MHz
+  14          {
+  15   1        unsigned char data i, j;
+  16   1        while(xms--)
+  17   1          {
+  18   2        i = 12;
+  19   2        j = 169;
+  20   2        do
+  21   2        {
+  22   3          while (--j);
+  23   3        } while (--i);
+  24   2      }
+  25   1      }
+  26          
+  27          //hc138
+  28          void hc138(unsigned char n)
+  29          {
+  30   1        P2 = (P2 & 0x1F) | 0x00; 
+  31   1        switch(n)
+  32   1        {
+  33   2          case 4: P2 = (P2 & 0x1F) | 0x80; break;
+  34   2          case 5: P2 = (P2 & 0x1F) | 0xA0; break;
+  35   2          case 6: P2 = (P2 & 0x1F) | 0xC0; break;
+  36   2          case 7: P2 = (P2 & 0x1F) | 0xE0; break;
+  37   2        }
+  38   1      }
+  39          
+  40          void out(unsigned char channel, unsigned char dat)
+  41          {
+  42   1        P0 = dat;
+  43   1        hc138(channel);
+  44   1        hc138(0);
+  45   1      }
+  46          
+  47          // 修复后的显示单元：自带消影！
+  48          void smg_bit(unsigned char value, unsigned char pos)
+  49          {
+  50   1          out(6, 0x01 << pos);       // 1. 开聚光灯
+  51   1          out(7, SMG_duanma[value]); // 2. 画形状
+  52   1          Delay(2);                  // 3. 亮 2ms 让眼睛看清
+  53   1          out(7, 0xFF);              // 4. ?? 极其重要：消影全灭！
+  54   1      }
+C51 COMPILER V9.54   MAIN                                                                  03/10/2026 19:15:09 PAGE 2   
+
+  55          
+  56          // 纯粹的显示任务（不含任何长延时，总耗时约 16ms）
+  57          void smg_display(unsigned char m)
+  58          {
+  59   1          smg_bit(2, 0);
+  60   1          smg_bit(0, 1);
+  61   1          smg_bit(2, 2);
+  62   1          smg_bit(6, 3);
+  63   1          
+  64   1          smg_bit(16, 4); // '-'
+  65   1          smg_bit(16, 5); // '-'
+  66   1          
+  67   1          smg_bit(m / 10, 6); // 月份十位
+  68   1          smg_bit(m % 10, 7); // 月份个位
+  69   1      }
+  70          
+  71          // 全局变量
+  72          unsigned char yu = 1;      // 月份从 1 开始
+  73          unsigned int count = 0;    // 计时器
+  74          
+  75          void main()
+  76          {
+  77   1          while(1)
+  78   1          {
+  79   2              // 1. 永不停歇地刷新屏幕（每次耗时约 16ms）
+  80   2              smg_display(yu);
+  81   2              
+  82   2              // 2. 利用循环次数来“软延时”
+  83   2              count++;
+  84   2              if (count >= 30) // 扫描 30 次，大约经过了 30 * 16ms ≈ 500ms（半秒钟）
+  85   2              {
+  86   3                  count = 0;   // 计数器清零
+  87   3                  yu++;        // 月份加一
+  88   3                  if (yu > 12)
+  89   3                  {
+  90   4                      yu = 1;
+  91   4                  }
+  92   3              }
+  93   2          }
+  94   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    239    ----
+   CONSTANT SIZE    =     18    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

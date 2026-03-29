@@ -1,0 +1,48 @@
+C51 COMPILER V9.54   SEG                                                                   03/03/2026 19:38:33 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE SEG
+OBJECT MODULE PLACED IN .\Objects\Seg.obj
+COMPILER INVOKED BY: D:\01_Portable_Apps\Dev_Kit\keil\C51\BIN\C51.EXE ..\driver\Seg.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..
+                    -\driver) DEBUG OBJECTEXTEND PRINT(.\Listings\Seg.lst) TABS(2) OBJECT(.\Objects\Seg.obj)
+
+line level    source
+
+   1          #include <Seg.h>
+   2          
+   3          //段码位码
+   4          // 蓝桥杯专属段码（0~9, A~F，全灭）
+   5          // 记忆小窍门：0xc0是0，0xf9是1，0xbf是负号，0xff是全灭
+   6          unsigned char code Seg_Dula[] = {
+   7              0xc0, 0xf9, 0xa4, 0xb0, 0x99, 0x92, 0x82, 0xf8, 0x80, 0x90, 
+   8              0x88, 0x83, 0xc6, 0xa1, 0x86, 0x8e, 0xbf, 0xff
+   9          };
+  10          
+  11          // 蓝桥杯专属位码（第1位 到 第8位）
+  12          // 这个根本不用死记，你看它的二进制：00000001, 00000010, 00000100... 就是那个唯一的 1 在往左跑
+  13          unsigned char code Seg_Wela[] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
+  14          
+  15          //main
+  16          void Seg_Disp(unsigned char wela,unsigned char dula)
+  17          {
+*** WARNING C235 IN LINE 17 OF ..\driver\Seg.c: parameter 2: different types
+  18   1        P0 = 0x00;
+  19   1        P2_6 = 1;
+*** ERROR C202 IN LINE 19 OF ..\driver\Seg.c: 'P2_6': undefined identifier
+  20   1        P2_6 = 0;
+*** ERROR C202 IN LINE 20 OF ..\driver\Seg.c: 'P2_6': undefined identifier
+  21   1      
+  22   1        P0 = Seg_Wela[wela];
+  23   1        P2_7 = 1;
+*** ERROR C202 IN LINE 23 OF ..\driver\Seg.c: 'P2_7': undefined identifier
+  24   1        P2_7 = 0;
+*** ERROR C202 IN LINE 24 OF ..\driver\Seg.c: 'P2_7': undefined identifier
+  25   1        
+  26   1        P0 = Seg_Dula[dula];
+  27   1        P2_6 = 1;
+*** ERROR C202 IN LINE 27 OF ..\driver\Seg.c: 'P2_6': undefined identifier
+  28   1        P2_6 = 0;
+*** ERROR C202 IN LINE 28 OF ..\driver\Seg.c: 'P2_6': undefined identifier
+  29   1      }
+
+C51 COMPILATION COMPLETE.  1 WARNING(S),  6 ERROR(S)

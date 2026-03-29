@@ -1,0 +1,24 @@
+#include <REGX52.H>
+#include <seg.h>
+
+unsigned char smg_duan[] = {0xC0, 0xF9, 0xA4, 0xB0, 0x99, 0x92, 0x82, 0xF8, 0x80, 0x90, 0x88, 0x83, 0xC6, 0xA1, 0x86, 0x8E, 0xBF, 0x7F};
+unsigned char smg_wei[] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
+	
+void hc138(unsigned char n)
+{
+	P2 = (P2 & 0x1f) | (n << 5);
+}
+
+void out(unsigned char channel, unsigned char dat)
+{
+	P0 = dat;
+	hc138(channel);
+	hc138(0);
+}
+
+void Seg_Bit(unsigned char wei, unsigned char duan)
+{
+	out(7, 0xff);
+	out(6,smg_wei[wei]);
+	out(7,smg_duan[duan]);
+}

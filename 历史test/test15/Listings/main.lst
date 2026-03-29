@@ -1,0 +1,193 @@
+C51 COMPILER V9.54   MAIN                                                                  03/17/2026 20:17:29 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\01_Portable_Apps\Dev_Kit\keil\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND
+                    - PRINT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          
+   3          //初始化定义
+   4          sbit S4 = P3^3;
+   5          sbit S5 = P3^2;
+   6          
+   7          unsigned char time_m = 0;
+   8          unsigned char time_s = 0;
+   9          unsigned char time_005ms = 0;
+  10          
+  11          
+  12          //延时函数
+  13          void Delay(unsigned int time) //@12.000MHz
+  14          {
+  15   1        unsigned char data i, j;
+  16   1      
+  17   1        i = 12;
+  18   1        j = 169;
+  19   1        while(time--)
+  20   1        {
+  21   2          do
+  22   2          {
+  23   3            while (--j);
+  24   3          } while (--i);
+  25   2        }
+  26   1      }
+  27          
+  28          
+  29          //段码表
+  30          unsigned char code SMG_duanma[18]=
+  31              {0xc0,0xf9,0xa4,0xb0,0x99,0x92,0x82,0xf8,
+  32               0x80,0x90,0x88,0x80,0xc6,0xc0,0x86,0x8e,
+  33               0xbf,0x7f};
+  34              
+  35          //out封装
+  36          void hc138(unsigned char n)
+  37          {
+  38   1        P2 = (P2 & 0x1f) | (n << 5);
+  39   1      }
+  40          void out(unsigned char channel, unsigned char dat)
+  41          {
+  42   1        P0 = dat;
+  43   1        hc138(channel);
+  44   1        hc138(0);
+  45   1      }
+  46          
+  47          //单数码管显示
+  48          void SMG_bit(unsigned char value, unsigned char pos)
+  49          {
+  50   1        out(7, 0xff);
+  51   1        out(6,0x01 << pos);
+  52   1        out(7,value);
+  53   1      }
+  54          
+C51 COMPILER V9.54   MAIN                                                                  03/17/2026 20:17:29 PAGE 2   
+
+  55          //数码管延时专用
+  56          void SMG_delay(unsigned int t)
+  57          {
+  58   1        while(t--);
+  59   1      }
+  60          
+  61          //数码管复杂显示模组
+  62          void SMG_show()
+  63          {
+  64   1        SMG_bit(SMG_duanma[time_005ms % 10], 7);
+  65   1        SMG_delay(500);
+  66   1        SMG_bit(SMG_duanma[time_005ms / 10], 6);
+  67   1        SMG_delay(500);
+  68   1        SMG_bit(SMG_duanma[17], 5);
+  69   1        SMG_delay(500);
+  70   1        SMG_bit(SMG_duanma[time_s % 10], 4);
+  71   1        SMG_delay(500);
+  72   1        SMG_bit(SMG_duanma[time_s / 10], 3);
+  73   1        SMG_delay(500);
+  74   1        SMG_bit(SMG_duanma[17], 2);
+  75   1        SMG_delay(500);
+  76   1        SMG_bit(SMG_duanma[time_m % 10], 1);
+  77   1        SMG_delay(500);
+  78   1        SMG_bit(SMG_duanma[time_m / 10], 0);
+  79   1        SMG_delay(500);
+  80   1      }
+  81          
+  82          
+  83          //定时器中断
+  84          void InitTime()
+  85          {
+  86   1        TMOD = 0x01;
+  87   1        TH0 = (65535 - 50000) / 256;
+  88   1        TL0 = (65535 - 50000) % 256;
+  89   1      
+  90   1        ET0 = 1;
+  91   1        EA = 1;
+  92   1        TR0 = 1;
+  93   1      }
+  94            
+  95          //定时器服务
+  96          void ServiceTime() interrupt 1
+  97          {
+  98   1        TH0 = (65535 - 50000) / 256;
+  99   1        TL0 = (65535 - 50000) % 256;
+ 100   1        time_005ms++;
+ 101   1        if(time_005ms == 20)
+ 102   1        {
+ 103   2          time_s++;
+ 104   2          time_005ms = 0;
+ 105   2        }
+ 106   1        if(time_s == 60)
+ 107   1        {
+ 108   2          time_m++;
+ 109   2          time_s = 0;
+ 110   2        }
+ 111   1        if(time_m == 99)
+ 112   1        {
+ 113   2          time_m = 0;
+ 114   2        }
+ 115   1      }
+ 116          
+C51 COMPILER V9.54   MAIN                                                                  03/17/2026 20:17:29 PAGE 3   
+
+ 117          //按键扫描延时
+ 118          void Key_delay(unsigned int t)
+ 119          {
+ 120   1        while(t--);
+ 121   1      }
+ 122          
+ 123          
+ 124          //按键扫描
+ 125          void Key()
+ 126          {
+ 127   1        if(S4 == 0) //暂停，启动
+ 128   1        {
+ 129   2          Key_delay(100);
+ 130   2          if(S4 == 0)
+ 131   2          {
+ 132   3            TR0 = ~TR0;
+ 133   3            while(S4 == 0)
+ 134   3            {
+ 135   4              SMG_show();
+ 136   4            }
+ 137   3          }
+ 138   2        }
+ 139   1      
+ 140   1        if(S5 == 0) //秒表清零
+ 141   1        {
+ 142   2          Key_delay(100);
+ 143   2          if(S5 == 0)
+ 144   2          {
+ 145   3            time_m = 0;
+ 146   3            time_s = 0;
+ 147   3            time_005ms = 0;
+ 148   3            while(S5 == 0)
+ 149   3            {
+ 150   4              SMG_show();
+ 151   4            }
+ 152   3          }
+ 153   2        }
+ 154   1      }
+ 155          
+ 156          
+ 157          void main()
+ 158          {
+ 159   1        InitTime();
+ 160   1        while(1)
+ 161   1        {
+ 162   2        SMG_show();
+ 163   2          Key();
+ 164   2        }
+ 165   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    346    ----
+   CONSTANT SIZE    =     18    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =      3    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

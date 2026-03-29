@@ -1,0 +1,29 @@
+#include <Seg.h>
+
+//段码位码
+// 蓝桥杯专属段码（0~9, A~F，全灭）
+// 记忆小窍门：0xc0是0，0xf9是1，0xbf是负号，0xff是全灭
+unsigned char code Seg_Dula[] = {
+    0xc0, 0xf9, 0xa4, 0xb0, 0x99, 0x92, 0x82, 0xf8, 0x80, 0x90, 
+    0x88, 0x83, 0xc6, 0xa1, 0x86, 0x8e, 0xbf, 0xff
+};
+
+// 蓝桥杯专属位码（第1位 到 第8位）
+// 这个根本不用死记，你看它的二进制：00000001, 00000010, 00000100... 就是那个唯一的 1 在往左跑
+unsigned char code Seg_Wela[] = {0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80};
+
+//main
+void Seg_Disp(unsigned char wela,unsigned char dula)
+{
+	P0 = 0x00;
+	P2_6 = 1;
+	P2_6 = 0;
+
+	P0 = Seg_Wela[wela];
+	P2_7 = 1;
+	P2_7 = 0;
+	
+	P0 = Seg_Dula[dula];
+	P2_6 = 1;
+	P2_6 = 0;
+}

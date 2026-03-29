@@ -1,0 +1,223 @@
+C51 COMPILER V9.59.0.0   IIC                                                               09/15/2025 19:05:34 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE IIC
+OBJECT MODULE PLACED IN .\Objects\iic.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE ..\Driver\iic.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\User;..\Driver) DEBUG O
+                    -BJECTEXTEND PRINT(.\Listings\iic.lst) OBJECT(.\Objects\iic.obj)
+
+line level    source
+
+   1          #include "iic.h"
+   2          
+   3          static void I2C_Delay (unsigned char n)
+   4          {
+   5   1          do
+   6   1          {
+   7   2              _nop_();_nop_();_nop_();_nop_();_nop_();
+   8   2              _nop_();_nop_();_nop_();_nop_();_nop_();
+   9   2              _nop_();_nop_();_nop_();_nop_();_nop_();                
+  10   2          }
+  11   1          while(n--);         
+  12   1      }
+  13          
+  14          void I2CStart (void)
+  15          {
+  16   1          sda = 1;
+  17   1          scl = 1;
+  18   1              I2C_Delay(DELAY_TIME);
+  19   1          sda = 0;
+  20   1              I2C_Delay(DELAY_TIME);
+  21   1          scl = 0;    
+  22   1      }
+  23          
+  24          void I2CStop (void)
+  25          {
+  26   1          sda = 0;
+  27   1          scl = 1;
+  28   1              I2C_Delay(DELAY_TIME);
+  29   1          sda = 1;
+  30   1              I2C_Delay(DELAY_TIME);
+  31   1      }
+  32          
+  33          void I2CSendByte (unsigned char byt)
+  34          {
+  35   1          unsigned char i;
+  36   1              
+  37   1          for(i=0; i<8; i++){
+  38   2              scl = 0;
+  39   2                      I2C_Delay(DELAY_TIME);
+  40   2              if(byt & 0x80){
+  41   3                  sda = 1;
+  42   3              }
+  43   2              else{
+  44   3                  sda = 0;
+  45   3              }
+  46   2                      I2C_Delay(DELAY_TIME);
+  47   2              scl = 1;
+  48   2              byt <<= 1;
+  49   2                      I2C_Delay(DELAY_TIME);
+  50   2          }
+  51   1              
+  52   1          scl = 0;  
+  53   1      }
+  54          
+C51 COMPILER V9.59.0.0   IIC                                                               09/15/2025 19:05:34 PAGE 2   
+
+  55          unsigned char I2CReceiveByte (void)
+  56          {
+  57   1              unsigned char da;
+  58   1              unsigned char i;
+  59   1              for(i=0;i<8;i++){   
+  60   2                      scl = 1;
+  61   2                      I2C_Delay(DELAY_TIME);
+  62   2                      da <<= 1;
+  63   2                      if(sda) 
+  64   2                              da |= 0x01;
+  65   2                      scl = 0;
+  66   2                      I2C_Delay(DELAY_TIME);
+  67   2              }
+  68   1              return da;    
+  69   1      }
+  70          
+  71          unsigned char I2CWaitAck (void)
+  72          {
+  73   1              unsigned char ackbit;
+  74   1              
+  75   1          scl = 1;
+  76   1              I2C_Delay(DELAY_TIME);
+  77   1          ackbit = sda; 
+  78   1          scl = 0;
+  79   1              I2C_Delay(DELAY_TIME);
+  80   1              
+  81   1              return ackbit;
+  82   1      }
+  83          
+  84          void I2CSendAck (unsigned char ackbit)
+  85          {
+  86   1          scl = 0;
+  87   1          sda = ackbit; 
+  88   1              I2C_Delay(DELAY_TIME);
+  89   1          scl = 1;
+  90   1              I2C_Delay(DELAY_TIME);
+  91   1          scl = 0; 
+  92   1              sda = 1;
+  93   1              I2C_Delay(DELAY_TIME);
+  94   1      }
+  95          
+  96          //=====================================================
+  97          
+  98          void DA_Write (unsigned char dat)
+  99          {
+ 100   1              I2CStart ();
+ 101   1              
+ 102   1              I2CSendByte (0x90);
+ 103   1              I2CWaitAck ();
+ 104   1              
+ 105   1              I2CSendByte (0x41);
+ 106   1              I2CWaitAck ();
+ 107   1              
+ 108   1              I2CSendByte (dat);
+ 109   1              I2CWaitAck ();
+ 110   1              
+ 111   1              I2CStop ();
+ 112   1      }
+ 113          
+ 114          unsigned char AD_Read (unsigned char addr)
+ 115          {
+ 116   1              unsigned char temp;
+C51 COMPILER V9.59.0.0   IIC                                                               09/15/2025 19:05:34 PAGE 3   
+
+ 117   1              //
+ 118   1              I2CStart ();
+ 119   1              
+ 120   1              I2CSendByte (0x90);
+ 121   1              I2CWaitAck ();
+ 122   1              
+ 123   1              I2CSendByte (addr);
+ 124   1              I2CWaitAck ();
+ 125   1              
+ 126   1      //      I2CStop ();
+ 127   1              //
+ 128   1              I2CStart ();
+ 129   1              
+ 130   1              I2CSendByte (0x91);
+ 131   1              I2CWaitAck ();
+ 132   1              
+ 133   1              temp = I2CReceiveByte ();
+ 134   1              I2CSendAck (1);
+ 135   1              
+ 136   1              I2CStop ();
+ 137   1              //
+ 138   1              return temp;
+ 139   1      }
+ 140          
+ 141          //
+ 142          
+ 143          void EEP_Write (unsigned char* str, unsigned char addr, num)
+ 144          {
+ 145   1              I2CStart ();
+ 146   1              
+ 147   1              I2CSendByte (0xA0);
+ 148   1              I2CWaitAck ();
+ 149   1              
+ 150   1              I2CSendByte (addr);
+ 151   1              I2CWaitAck ();
+ 152   1              
+ 153   1              while (num --) {
+ 154   2                      I2CSendByte (* str ++);
+ 155   2                      I2CWaitAck ();
+ 156   2                      I2C_Delay (200);
+ 157   2              }
+ 158   1              
+ 159   1              I2CStop ();
+ 160   1              //
+ 161   1              I2C_Delay (250);
+ 162   1              I2C_Delay (250);
+ 163   1              I2C_Delay (250);
+ 164   1              I2C_Delay (250);
+ 165   1      }
+ 166          
+ 167          void EEP_Read (unsigned char* str, unsigned char addr, num)
+ 168          {
+ 169   1              I2CStart ();
+ 170   1              
+ 171   1              I2CSendByte (0xA0);
+ 172   1              I2CWaitAck ();
+ 173   1              
+ 174   1              I2CSendByte (addr);
+ 175   1              I2CWaitAck ();
+ 176   1              
+ 177   1      //      I2CStop ();
+ 178   1              //
+C51 COMPILER V9.59.0.0   IIC                                                               09/15/2025 19:05:34 PAGE 4   
+
+ 179   1              I2CStart ();
+ 180   1              
+ 181   1              I2CSendByte (0xA1);
+ 182   1              I2CWaitAck ();
+ 183   1              
+ 184   1              while (num --) {
+ 185   2                      * str ++ = I2CReceiveByte ();
+ 186   2                      if (num)
+ 187   2                              I2CSendAck (0);
+ 188   2                      else
+ 189   2                              I2CSendAck (1);
+ 190   2              }
+ 191   1              
+ 192   1              I2CStop ();
+ 193   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    412    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      12
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

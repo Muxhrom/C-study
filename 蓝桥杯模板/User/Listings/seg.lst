@@ -1,0 +1,58 @@
+C51 COMPILER V9.59.0.0   SEG                                                               09/15/2025 19:05:34 PAGE 1   
+
+
+C51 COMPILER V9.59.0.0, COMPILATION OF MODULE SEG
+OBJECT MODULE PLACED IN .\Objects\seg.obj
+COMPILER INVOKED BY: D:\Keil5\C51\BIN\C51.EXE ..\Driver\seg.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\User;..\Driver) DEBUG O
+                    -BJECTEXTEND PRINT(.\Listings\seg.lst) OBJECT(.\Objects\seg.obj)
+
+line level    source
+
+   1          #include "seg.h"
+   2          
+   3          unsigned char code _Wei[] = {0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80};      //Î»Âë
+   4          unsigned char code _Duan[] = {                       //±ê×¼×Ö¿â
+   5          //   0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F
+   6              0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F,0x77,0x7C,0x39,0x5E,0x79,0x71,
+   7          //black  -     H    J    K    L    N    o   P    U     t    G    Q    r   M    y
+   8              0x00,0x40,0x76,0x1E,0x70,0x38,0x37,0x5C,0x73,0x3E,0x78,0x3d,0x67,0x50,0x37,0x6e,
+   9              0xBF,0x86,0xDB,0xCF,0xE6,0xED,0xFD,0x87,0xFF,0xEF,0x46};    //0. 1. 2. 3. 4. 5. 6. 7. 8. 9. -1
+  10          
+  11          void Seg_Disp (unsigned char wei, duan, dot)
+  12          {
+  13   1              P0 = 0xff;
+  14   1              Y7; Y0;
+  15   1              
+  16   1              P0 = _Wei[wei];
+  17   1              Y6; Y0;
+  18   1              
+  19   1              P0 = ~ _Duan[duan];
+  20   1              if (dot) P0 &= 0x7f;
+  21   1              Y7; Y0;
+  22   1      }
+  23          
+  24          void arr_input (unsigned char* arr, unsigned char e0, e1, e2, e3, e4, e5, e6, e7)
+  25          {
+  26   1              * arr ++ = e0;
+  27   1              * arr ++ = e1;
+  28   1              * arr ++ = e2;
+  29   1              * arr ++ = e3;
+  30   1              * arr ++ = e4;
+  31   1              * arr ++ = e5;
+  32   1              * arr ++ = e6;
+  33   1              * arr ++ = e7;
+  34   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    219    ----
+   CONSTANT SIZE    =     51    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----      18
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
