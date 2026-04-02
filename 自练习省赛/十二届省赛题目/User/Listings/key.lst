@@ -1,0 +1,76 @@
+C51 COMPILER V9.54   KEY                                                                   04/01/2026 20:00:36 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE KEY
+OBJECT MODULE PLACED IN .\Objects\key.obj
+COMPILER INVOKED BY: D:\01_Portable_Apps\Dev_Kit\keil\C51\BIN\C51.EXE ..\Drive\key.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\
+                    -Drive) DEBUG OBJECTEXTEND PRINT(.\Listings\key.lst) TABS(2) OBJECT(.\Objects\key.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include <key.h>
+   3          
+   4          sbit R7 = P3^0;
+   5          sbit R6 = P3^1;
+   6          sbit R5 = P3^2;
+   7          sbit R4 = P3^3;
+   8          
+   9          unsigned char Key_Read(unsigned char key_mode)
+  10          {
+  11   1        unsigned char temp = 0;
+  12   1      
+  13   1        if(key_mode == 0) //独立按键
+  14   1        {
+  15   2          if(R7 == 0) temp = 7;
+  16   2          if(R6 == 0) temp = 6;
+  17   2          if(R5 == 0) temp = 5;
+  18   2          if(R4 == 0) temp = 4;
+  19   2        }
+  20   1      
+  21   1        if(key_mode == 1)//矩阵按键
+  22   1        {
+  23   2          P3 = 0xEF;
+  24   2          if(R7 == 0) temp = 7;
+  25   2          if(R6 == 0) temp = 6;
+  26   2          if(R5 == 0) temp = 5;
+  27   2          if(R4 == 0) temp = 4;
+  28   2      
+  29   2          P3 = 0xDF;
+  30   2          if(R7 == 0) temp = 11;
+  31   2          if(R6 == 0) temp = 10;
+  32   2          if(R5 == 0) temp = 9;
+  33   2          if(R4 == 0) temp = 8;
+  34   2      
+  35   2          P3 = 0xBF;
+  36   2          if(R7 == 0) temp = 15;
+  37   2          if(R6 == 0) temp = 14;
+  38   2          if(R5 == 0) temp = 13;
+  39   2          if(R4 == 0) temp = 12;
+  40   2      
+  41   2          P3 = 0x7F;
+  42   2          if(R7 == 0) temp = 19;
+  43   2          if(R6 == 0) temp = 18;
+  44   2          if(R5 == 0) temp = 17;
+  45   2          if(R4 == 0) temp = 16;
+  46   2      
+  47   2          P3 = 0xFF;
+  48   2        }
+  49   1        return temp;
+  50   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    128    ----
+C51 COMPILER V9.54   KEY                                                                   04/01/2026 20:00:36 PAGE 2   
+
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

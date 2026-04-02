@@ -1,0 +1,109 @@
+C51 COMPILER V9.54   MAIN                                                                  03/30/2026 19:35:34 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: D:\01_Portable_Apps\Dev_Kit\keil\C51\BIN\C51.EXE main.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\Drive) D
+                    -EBUG OBJECTEXTEND PRINT(.\Listings\main.lst) TABS(2) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include <key.h>
+   3          #include <smg.h>
+   4          
+   5          //变量定义
+   6          unsigned int smg_flag, key_flag, led_flag;  //按键减速,500 10 500
+   7          unsigned char key_val, key_old, key_down;  //按键判断
+   8          unsigned char smg_pos = 0; //选smg位置，动态扫描
+   9          unsigned char smg_buf[8] = {0,1,2,3,4,5,6,7}; //smg的整体数值
+  10          
+  11          
+  12          //按键处理
+  13          void Key_Proc()
+  14          {
+  15   1        if(key_flag) return;
+  16   1        key_flag = 1;
+  17   1        
+  18   1        key_val = Key_Read();
+  19   1        key_down = key_val & (key_val ^ key_old);
+  20   1        key_old = key_val;
+  21   1        
+  22   1        switch(key_down)
+  23   1        {
+  24   2        
+  25   2        }
+  26   1      }
+  27          
+  28          
+  29          //数据处理
+  30          void SMG_Proc()
+  31          {
+  32   1        if(smg_flag) return;
+  33   1        smg_flag = 1;
+  34   1      }
+  35          
+  36          //led及其他数据处理
+  37          void Led_Proc()
+  38          {
+  39   1        if(led_flag) return;
+  40   1        led_flag = 1;
+  41   1      } 
+  42          
+  43          //定时器初始化
+  44          void Timer0_Init(void)    //1毫秒@12.000MHz
+  45          {
+  46   1        TMOD = 0x01;      //设置定时器模式
+  47   1        TL0 = 0x18;       //设置定时初始值
+  48   1        TH0 = 0xFC;       //设置定时初始值
+  49   1        TF0 = 0;        //清除TF0标志
+  50   1        TR0 = 1;        //定时器0开始计时
+  51   1        EA = 1;
+  52   1        ET0 = 1;
+  53   1      }
+  54          
+C51 COMPILER V9.54   MAIN                                                                  03/30/2026 19:35:34 PAGE 2   
+
+  55          //定时器服务函数
+  56          void Timer0_Server() interrupt 1
+  57          {
+  58   1        TL0 = 0x18;       //设置定时初始值
+  59   1        TH0 = 0xFC;       //设置定时初始值
+  60   1      
+  61   1        if(++smg_flag >= 500)
+  62   1          smg_flag = 0;
+  63   1        if(++led_flag >= 500)
+  64   1          led_flag = 0;
+  65   1        if(++key_flag >= 10)
+  66   1          key_flag = 0;
+  67   1        
+  68   1        if(++smg_pos == 8)
+  69   1          smg_pos = 0;
+  70   1        SMG_Display(smg_pos, smg_buf[smg_pos]);
+  71   1      }
+  72          
+  73          //主函数
+  74          void main()
+  75          {
+  76   1        Timer0_Init();
+  77   1        while(1)
+  78   1        {
+  79   2          SMG_Proc();
+  80   2          Led_Proc();
+  81   2          Key_Proc();
+  82   2        }
+  83   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    240    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =     18    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

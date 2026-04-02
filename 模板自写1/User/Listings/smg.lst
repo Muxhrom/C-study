@@ -1,0 +1,52 @@
+C51 COMPILER V9.54   SMG                                                                   03/30/2026 19:08:14 PAGE 1   
+
+
+C51 COMPILER V9.54, COMPILATION OF MODULE SMG
+OBJECT MODULE PLACED IN .\Objects\smg.obj
+COMPILER INVOKED BY: D:\01_Portable_Apps\Dev_Kit\keil\C51\BIN\C51.EXE ..\Drive\smg.c OPTIMIZE(8,SPEED) BROWSE INCDIR(..\
+                    -Drive) DEBUG OBJECTEXTEND PRINT(.\Listings\smg.lst) TABS(2) OBJECT(.\Objects\smg.obj)
+
+line level    source
+
+   1          #include <REGX52.H>
+   2          #include <smg.h>
+   3          
+   4          unsigned char code _Wei[] = {0x01,0x02,0x04,0x08,0x10,0x20,0x40,0x80};      //????
+   5          unsigned char code _Duan[] = {                       //¡À¨º¡Á?¡Á??a
+   6          //   0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F
+   7              0x3F,0x06,0x5B,0x4F,0x66,0x6D,0x7D,0x07,0x7F,0x6F,0x77,0x7C,0x39,0x5E,0x79,0x71,
+   8          //black  -     H    J    K    L    N    o   P    U     t    G    Q    r   M    y
+   9              0x00,0x40,0x76,0x1E,0x70,0x38,0x37,0x5C,0x73,0x3E,0x78,0x3d,0x67,0x50,0x37,0x6e,
+  10              0xBF,0x86,0xDB,0xCF,0xE6,0xED,0xFD,0x87,0xFF,0xEF,0x46};    //0. 1. 2. 3. 4. 5. 6. 7. 8. 9. -1
+  11          
+  12          void hc138(unsigned char n)
+  13          {
+  14   1        P2 = (P2 & 0x1f) | (n << 5);
+  15   1      }
+  16          void out(unsigned char channel, unsigned char dat)
+  17          {
+  18   1        P0 = dat;
+  19   1        hc138(channel);
+  20   1        hc138(0);
+  21   1      }
+  22          
+  23          void SMG_Display(unsigned char wei, unsigned char duan)
+  24          {
+  25   1        out(7,0xff);
+  26   1        out(6,_Wei[wei]);
+  27   1        out(7,_Duan[duan]);
+  28   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =     57    ----
+   CONSTANT SIZE    =     51    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
